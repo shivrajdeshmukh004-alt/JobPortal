@@ -45,32 +45,20 @@ def test_email(request):
     """Test email configuration and show exact errors."""
     import traceback
     results = {
-        'EMAIL_HOST': settings.EMAIL_HOST,
-        'EMAIL_PORT': settings.EMAIL_PORT,
-        'EMAIL_USE_TLS': settings.EMAIL_USE_TLS,
-        'EMAIL_HOST_USER': settings.EMAIL_HOST_USER,
-        'EMAIL_HOST_PASSWORD': '***' + (settings.EMAIL_HOST_PASSWORD[-4:] if settings.EMAIL_HOST_PASSWORD else 'NOT SET'),
+        'EMAIL_BACKEND': settings.EMAIL_BACKEND,
+        'BREVO_API_KEY': '***' + (settings.BREVO_API_KEY[-4:] if settings.BREVO_API_KEY else 'NOT SET'),
         'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
     }
     
     try:
-        from django.core.mail import get_connection
-        connection = get_connection()
-        connection.open()
-        results['connection'] = 'SUCCESS - SMTP connected!'
-        
-        # Try sending a test email
-        from django.core.mail import EmailMessage
-        email = EmailMessage(
-            subject='RecruitAI Test Email',
-            body='If you receive this, email is working!',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.EMAIL_HOST_USER or 'adityadeshmukh904@gmail.com'],
-            connection=connection,
+        send_mail(
+            'RecruitAI Test Email',
+            'If you receive this, email is working on Render!',
+            settings.DEFAULT_FROM_EMAIL,
+            ['adityadeshmukh904@gmail.com'],
+            fail_silently=False,
         )
-        email.send()
-        results['send'] = 'SUCCESS - Email sent!'
-        connection.close()
+        results['status'] = 'SUCCESS - Email sent via Brevo HTTP API!'
     except Exception as e:
         results['error'] = str(e)
         results['traceback'] = traceback.format_exc()
