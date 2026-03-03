@@ -15,30 +15,9 @@ from .decorators import hr_required, candidate_required
 from .chatbot import get_sambanova_response
 from django.http import JsonResponse
 import json
-import threading
 import logging
 
 logger = logging.getLogger(__name__)
-
-# --- Helper: Non-blocking email sender ---
-def send_mail_async(subject, message, from_email, recipient_list, html_message=None, fail_silently=True):
-    """Send email in a background thread to prevent request blocking on Render."""
-    def _send():
-        try:
-            send_mail(
-                subject,
-                message,
-                from_email,
-                recipient_list,
-                html_message=html_message,
-                fail_silently=fail_silently,
-            )
-        except Exception as e:
-            logger.error(f"Email send failed to {recipient_list}: {e}")
-    
-    thread = threading.Thread(target=_send)
-    thread.daemon = True
-    thread.start()
 
 # TEMPORARY: Diagnostic endpoint to test email - remove after fixing
 def test_email(request):
@@ -218,7 +197,7 @@ def manage_next_round(request, job_id):
             app.status = 'SELECTED'
             app.save()
             
-            # Send selection email (async)
+            # Send selection email
             try:
                 context = {
                     'candidate_name': app.candidate.get_full_name() or app.candidate.username,
@@ -228,10 +207,10 @@ def manage_next_round(request, job_id):
                 html_message = render_to_string('emails/selected.html', context)
                 plain_message = strip_tags(html_message)
 
-                send_mail_async(
+                send_mail(
                     f'Congratulations! Selected for {app.job.title}',
                     plain_message,
-                    settings.EMAIL_HOST_USER,
+                    settings.DEFAULT_FROM_EMAIL,
                     [app.candidate.email],
                     html_message=html_message,
                 )
@@ -282,10 +261,10 @@ def manage_next_round(request, job_id):
                     html_message = render_to_string('emails/round_cleared.html', context)
                     plain_message = strip_tags(html_message)
 
-                    send_mail_async(
+                    send_mail(
                         f'Congratulations! Next Round - {app.job.title}',
                         plain_message,
-                        settings.EMAIL_HOST_USER,
+                        settings.DEFAULT_FROM_EMAIL,
                         [app.candidate.email],
                         html_message=html_message,
                     )
@@ -334,10 +313,10 @@ def send_to_second_round(request, application_id):
             html_message = render_to_string('emails/interview_invite.html', context)
             plain_message = strip_tags(html_message)
 
-            send_mail_async(
+            send_mail(
                 f'Invitation for {round_name} - {app.job.title}',
                 plain_message,
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [app.candidate.email],
                 html_message=html_message,
             )
@@ -408,10 +387,10 @@ def bulk_manage_applicants(request, job_id):
                     html_message = render_to_string('emails/interview_invite.html', context)
                     plain_message = strip_tags(html_message)
 
-                    send_mail_async(
+                    send_mail(
                         f'Invitation for {round_name} - {app.job.title}',
                         plain_message,
-                        settings.EMAIL_HOST_USER,
+                        settings.DEFAULT_FROM_EMAIL,
                         [app.candidate.email],
                         html_message=html_message,
                     )
@@ -630,11 +609,11 @@ def forgot_password(request):
             request.session['reset_otp'] = otp
             request.session['reset_email'] = email
             
-            # Send OTP email (async to prevent timeout)
-            send_mail_async(
+            # Send OTP email
+            send_mail(
                 'Password Reset OTP - RecruitAI',
                 f'Your OTP for password reset is: {otp}\n\nThis OTP is valid for this session only.',
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
             )
                 
