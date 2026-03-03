@@ -15,6 +15,30 @@ from .decorators import hr_required, candidate_required
 from .chatbot import get_sambanova_response
 from django.http import JsonResponse
 import json
+import threading
+import logging
+
+logger = logging.getLogger(__name__)
+
+# --- Helper: Non-blocking email sender ---
+def send_mail_async(subject, message, from_email, recipient_list, html_message=None, fail_silently=True):
+    """Send email in a background thread to prevent request blocking on Render."""
+    def _send():
+        try:
+            send_mail(
+                subject,
+                message,
+                from_email,
+                recipient_list,
+                html_message=html_message,
+                fail_silently=fail_silently,
+            )
+        except Exception as e:
+            logger.error(f"Email send failed to {recipient_list}: {e}")
+    
+    thread = threading.Thread(target=_send)
+    thread.daemon = True
+    thread.start()
 
 @login_required
 def dashboard(request):
@@ -169,7 +193,7 @@ def manage_next_round(request, job_id):
             app.status = 'SELECTED'
             app.save()
             
-            # Send selection email
+            # Send selection email (async)
             try:
                 context = {
                     'candidate_name': app.candidate.get_full_name() or app.candidate.username,
@@ -179,13 +203,12 @@ def manage_next_round(request, job_id):
                 html_message = render_to_string('emails/selected.html', context)
                 plain_message = strip_tags(html_message)
 
-                send_mail(
+                send_mail_async(
                     f'Congratulations! Selected for {app.job.title}',
                     plain_message,
                     settings.EMAIL_HOST_USER,
                     [app.candidate.email],
                     html_message=html_message,
-                    fail_silently=False,
                 )
                 messages.success(request, f"Successfully selected {app.candidate.get_full_name() or app.candidate.username} for the role!")
             except Exception as e:
@@ -212,7 +235,6 @@ def manage_next_round(request, job_id):
             apps = Application.objects.filter(id__in=selected_ids, job=job)
             
             success_count = 0
-            email_errors = []
             
             for app in apps:
                 # Update status and interview details
@@ -222,7 +244,7 @@ def manage_next_round(request, job_id):
                 app.interview_date = interview_date
                 app.save()
                 
-                # Send "Round Cleared" Email
+                # Send "Round Cleared" Email (async)
                 try:
                     context = {
                         'candidate_name': app.candidate.get_full_name() or app.candidate.username,
@@ -235,22 +257,18 @@ def manage_next_round(request, job_id):
                     html_message = render_to_string('emails/round_cleared.html', context)
                     plain_message = strip_tags(html_message)
 
-                    send_mail(
+                    send_mail_async(
                         f'Congratulations! Next Round - {app.job.title}',
                         plain_message,
                         settings.EMAIL_HOST_USER,
                         [app.candidate.email],
                         html_message=html_message,
-                        fail_silently=False,
                     )
                     success_count += 1
                 except Exception as e:
-                    email_errors.append(f"{app.candidate.username}: {str(e)}")
+                    logger.error(f"Email error for {app.candidate.username}: {e}")
             
-            if email_errors:
-                messages.warning(request, f"Updated rounds, but some emails failed: {', '.join(email_errors)}")
-            else:
-                messages.success(request, f"Successfully moved {success_count} candidate(s) to {round_name}!")
+            messages.success(request, f"Successfully moved {success_count} candidate(s) to {round_name}!")
                 
             return redirect('manage_next_round', job_id=job.id)
 
@@ -278,7 +296,7 @@ def send_to_second_round(request, application_id):
         app.interview_date = interview_date
         app.save()
         
-        # Send Email
+        # Send Email (async)
         try:
             context = {
                 'candidate_name': app.candidate.get_full_name() or app.candidate.username,
@@ -291,13 +309,12 @@ def send_to_second_round(request, application_id):
             html_message = render_to_string('emails/interview_invite.html', context)
             plain_message = strip_tags(html_message)
 
-            send_mail(
+            send_mail_async(
                 f'Invitation for {round_name} - {app.job.title}',
                 plain_message,
                 settings.EMAIL_HOST_USER,
                 [app.candidate.email],
                 html_message=html_message,
-                fail_silently=True,
             )
             messages.success(request, f"Invitation sent to {app.candidate.username} for {round_name}!")
         except Exception as e:
@@ -345,7 +362,6 @@ def bulk_manage_applicants(request, job_id):
                 interview_date = timezone.make_aware(interview_date)
             
             success_count = 0
-            email_errors = []
             
             for app in apps:
                 app.status = 'SECOND_ROUND'
@@ -354,7 +370,7 @@ def bulk_manage_applicants(request, job_id):
                 app.interview_date = interview_date
                 app.save()
                 
-                # Send interview invitation email
+                # Send interview invitation email (async)
                 try:
                     context = {
                         'candidate_name': app.candidate.get_full_name() or app.candidate.username,
@@ -367,22 +383,18 @@ def bulk_manage_applicants(request, job_id):
                     html_message = render_to_string('emails/interview_invite.html', context)
                     plain_message = strip_tags(html_message)
 
-                    send_mail(
+                    send_mail_async(
                         f'Invitation for {round_name} - {app.job.title}',
                         plain_message,
                         settings.EMAIL_HOST_USER,
                         [app.candidate.email],
                         html_message=html_message,
-                        fail_silently=False,
                     )
                     success_count += 1
                 except Exception as e:
-                    email_errors.append(f"{app.candidate.username}: {str(e)}")
+                    logger.error(f"Email error for {app.candidate.username}: {e}")
             
-            if email_errors:
-                messages.warning(request, f"Invited {success_count} candidates, but some emails failed: {', '.join(email_errors)}")
-            else:
-                messages.success(request, f"Invited {success_count} candidate(s) to {round_name} and sent emails.")
+            messages.success(request, f"Invited {success_count} candidate(s) to {round_name} and sent emails.")
             
     return redirect('job_applicants', job_id=job_id)
 
@@ -549,9 +561,6 @@ def update_profile(request):
             user.save()
             
             form.save()
-            # Debug Cloudinary URL
-            if profile.master_resume:
-                print(f"DEBUG: New Resume URL: {profile.master_resume.url}")
             return redirect('profile_view')
     else:
         form = CandidateProfileForm(instance=profile)
@@ -596,20 +605,13 @@ def forgot_password(request):
             request.session['reset_otp'] = otp
             request.session['reset_email'] = email
             
-            # For demo/local: print to console
-            print(f"DEBUG: OTP for {email} is {otp}")
-            
-            # Send real email if configured
-            try:
-                send_mail(
-                    'Password Reset OTP',
-                    f'Your OTP for password reset is: {otp}',
-                    settings.EMAIL_HOST_USER,
-                    [email],
-                    fail_silently=True,
-                )
-            except:
-                pass
+            # Send OTP email (async to prevent timeout)
+            send_mail_async(
+                'Password Reset OTP - RecruitAI',
+                f'Your OTP for password reset is: {otp}\n\nThis OTP is valid for this session only.',
+                settings.EMAIL_HOST_USER,
+                [email],
+            )
                 
             messages.success(request, 'OTP sent to your email!')
             return redirect('verify_otp')
@@ -769,4 +771,3 @@ def hr_update_profile(request):
         'form': form,
         'user': request.user
     })
-
