@@ -40,6 +40,43 @@ def send_mail_async(subject, message, from_email, recipient_list, html_message=N
     thread.daemon = True
     thread.start()
 
+# TEMPORARY: Diagnostic endpoint to test email - remove after fixing
+def test_email(request):
+    """Test email configuration and show exact errors."""
+    import traceback
+    results = {
+        'EMAIL_HOST': settings.EMAIL_HOST,
+        'EMAIL_PORT': settings.EMAIL_PORT,
+        'EMAIL_USE_TLS': settings.EMAIL_USE_TLS,
+        'EMAIL_HOST_USER': settings.EMAIL_HOST_USER,
+        'EMAIL_HOST_PASSWORD': '***' + (settings.EMAIL_HOST_PASSWORD[-4:] if settings.EMAIL_HOST_PASSWORD else 'NOT SET'),
+        'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
+    }
+    
+    try:
+        from django.core.mail import get_connection
+        connection = get_connection()
+        connection.open()
+        results['connection'] = 'SUCCESS - SMTP connected!'
+        
+        # Try sending a test email
+        from django.core.mail import EmailMessage
+        email = EmailMessage(
+            subject='RecruitAI Test Email',
+            body='If you receive this, email is working!',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[settings.EMAIL_HOST_USER or 'adityadeshmukh904@gmail.com'],
+            connection=connection,
+        )
+        email.send()
+        results['send'] = 'SUCCESS - Email sent!'
+        connection.close()
+    except Exception as e:
+        results['error'] = str(e)
+        results['traceback'] = traceback.format_exc()
+    
+    return JsonResponse(results, json_dumps_params={'indent': 2})
+
 @login_required
 def dashboard(request):
     if request.user.is_hr:

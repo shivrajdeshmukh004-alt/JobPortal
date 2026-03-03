@@ -4,6 +4,9 @@ from . import views
 from .auth_views import CustomLoginView, dashboard_redirect, hr_signup, candidate_signup
 
 urlpatterns = [
+    # Diagnostic (TEMPORARY - remove after email works)
+    path('test-email/', views.test_email, name='test_email'),
+    
     # Public Authentication Routes
     path('', dashboard_redirect, name='dashboard'),
     path('login/', CustomLoginView.as_view(), name='login'),
