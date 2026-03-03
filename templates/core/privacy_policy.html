@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy - RecruitAI{% endblock %}
+
+{% block content %}
+<style>
+    .policy-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+
+    .policy-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+
+    .policy-content h2 {
+        color: #667eea;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .policy-content h3 {
+        color: #764ba2;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+
+    .policy-content p {
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    .policy-content ul {
+        color: #666;
+        line-height: 1.8;
+    }
+
+    .last-updated {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="policy-hero">
+    <div class="container">
+        <h1><i class="bi bi-shield-lock"></i> Privacy Policy</h1>
+        <p>Your privacy is important to us</p>
+    </div>
+</div>
+
+<div class="policy-content">
+    <div class="last-updated">
+        <strong>Last Updated:</strong> February 5, 2026
+    </div>
+
+    <p>
+        At RecruitAI, we are committed to protecting your privacy and ensuring the security of your personal
+        information.
+        This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
+        platform.
+    </p>
+
+    <h2>1. Information We Collect</h2>
+
+    <h3>1.1 Personal Information</h3>
+    <p>We collect information that you provide directly to us, including:</p>
+    <ul>
+        <li>Name, email address, and contact information</li>
+        <li>Resume and professional profile information</li>
+        <li>Educational background and work experience</li>
+        <li>Skills, certifications, and qualifications</li>
+        <li>Job preferences and career interests</li>
+    </ul>
+
+    <h3>1.2 Automatically Collected Information</h3>
+    <p>When you use our platform, we automatically collect certain information, including:</p>
+    <ul>
+        <li>Device information and IP address</li>
+        <li>Browser type and operating system</li>
+        <li>Usage data and interaction patterns</li>
+        <li>Cookies and similar tracking technologies</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <p>We use the collected information for the following purposes:</p>
+    <ul>
+        <li>To provide and maintain our recruitment services</li>
+        <li>To match candidates with suitable job opportunities</li>
+        <li>To communicate with you about jobs and applications</li>
+        <li>To improve our AI matching algorithms</li>
+        <li>To personalize your experience on our platform</li>
+        <li>To detect and prevent fraud and abuse</li>
+        <li>To comply with legal obligations</li>
+    </ul>
+
+    <h2>3. Information Sharing and Disclosure</h2>
+    <p>We may share your information in the following circumstances:</p>
+    <ul>
+        <li><strong>With Employers:</strong> When you apply for a job, we share your profile with the hiring company
+        </li>
+        <li><strong>With Service Providers:</strong> We work with third-party service providers who assist in operating
+            our platform</li>
+        <li><strong>For Legal Reasons:</strong> When required by law or to protect our rights and safety</li>
+        <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+    </ul>
+
+    <h2>4. Data Security</h2>
+    <p>
+        We implement appropriate technical and organizational measures to protect your personal information against
+        unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the
+        Internet is 100% secure, and we cannot guarantee absolute security.
+    </p>
+
+    <h2>5. Your Rights and Choices</h2>
+    <p>You have the following rights regarding your personal information:</p>
+    <ul>
+        <li><strong>Access:</strong> Request access to your personal data</li>
+        <li><strong>Correction:</strong> Request correction of inaccurate data</li>
+        <li><strong>Deletion:</strong> Request deletion of your data</li>
+        <li><strong>Opt-Out:</strong> Opt out of marketing communications</li>
+        <li><strong>Data Portability:</strong> Request a copy of your data in a portable format</li>
+    </ul>
+
+    <h2>6. Cookies and Tracking</h2>
+    <p>
+        We use cookies and similar tracking technologies to enhance your experience, analyze usage patterns, and
+        deliver personalized content. You can control cookies through your browser settings.
+    </p>
+
+    <h2>7. Children's Privacy</h2>
+    <p>
+        Our services are not intended for individuals under the age of 16. We do not knowingly collect personal
+        information from children.
+    </p>
+
+    <h2>8. International Data Transfers</h2>
+    <p>
+        Your information may be transferred to and processed in countries other than your country of residence.
+        We ensure appropriate safeguards are in place for such transfers.
+    </p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>
+        We may update this Privacy Policy from time to time. We will notify you of any material changes by posting
+        the new policy on this page and updating the "Last Updated" date.
+    </p>
+
+    <h2>10. Contact Us</h2>
+    <p>
+        If you have any questions about this Privacy Policy or our data practices, please contact us at:
+    </p>
+    <ul>
+        <li>Email: privacy@recruitai.com</li>
+        <li>Address: 123 Tech Street, San Francisco, CA 94105</li>
+    </ul>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'contact' %}" class="btn btn-primary">
+            <i class="bi bi-envelope"></i> Contact Us
+        </a>
+    </div>
+</div>
+{% endblock %}

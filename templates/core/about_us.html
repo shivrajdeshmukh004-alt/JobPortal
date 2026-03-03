@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% block title %}About Us - RecruitAI{% endblock %}
+
+{% block content %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5rem 0;
+        text-align: center;
+    }
+
+    .about-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .about-hero p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .about-section {
+        padding: 4rem 0;
+    }
+
+    .value-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .value-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .value-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-section {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 4rem 0;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<div class="about-hero">
+    <div class="container">
+        <h1><i class="bi bi-robot"></i> About RecruitAI</h1>
+        <p>Revolutionizing recruitment with AI-powered matching and streamlined hiring processes</p>
+    </div>
+</div>
+
+<div class="about-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Our Mission</h2>
+                <p class="lead">
+                    At RecruitAI, we're on a mission to transform the hiring landscape by connecting exceptional talent
+                    with outstanding opportunities through intelligent technology.
+                </p>
+                <p>
+                    We believe that finding the right job or the perfect candidate shouldn't be a game of chance. Our
+                    AI-powered platform analyzes skills, experience, and cultural fit to create meaningful connections
+                    that drive success for both candidates and employers.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="mb-4">Our Vision</h2>
+                <p class="lead">
+                    To become the world's most trusted recruitment platform, where every job seeker finds their dream
+                    role and every company builds their ideal team.
+                </p>
+                <p>
+                    We envision a future where hiring is fair, efficient, and data-driven, eliminating bias and creating
+                    equal opportunities for all talented professionals regardless of their background.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Impact</h2>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Active Jobs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Candidates</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">2K+</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="about-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Core Values</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>Trust & Transparency</h4>
+                    <p>We believe in honest communication and transparent processes. Every decision we make is guided by
+                        integrity and fairness.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h4>Innovation</h4>
+                    <p>We continuously push boundaries with cutting-edge AI technology to deliver the best recruitment
+                        experience.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h4>People First</h4>
+                    <p>Behind every resume is a person with dreams and aspirations. We prioritize human connection in
+                        everything we do.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4>Excellence</h4>
+                    <p>We strive for excellence in every interaction, ensuring quality matches that lead to long-term
+                        success.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-globe"></i>
+                    </div>
+                    <h4>Diversity & Inclusion</h4>
+                    <p>We champion diversity and create inclusive opportunities for talent from all backgrounds and
+                        experiences.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-rocket"></i>
+                    </div>
+                    <h4>Growth Mindset</h4>
+                    <p>We believe in continuous learning and development, helping both candidates and companies reach
+                        their full potential.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="about-section" style="background: #f8f9fa;">
+    <div class="container text-center">
+        <h2 class="mb-4">Join Us on Our Journey</h2>
+        <p class="lead mb-4">Whether you're looking for your next opportunity or building your dream team, we're here to
+            help.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'candidate_dashboard' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-search"></i> Find Jobs
+            </a>
+            <a href="{% url 'hr_signup' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-briefcase"></i> Post a Job
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

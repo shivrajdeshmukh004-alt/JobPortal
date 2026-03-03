@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify OTP - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<style>
+    .auth-card {
+        max-width: 450px;
+        margin: 5rem auto;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .otp-input-group {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .otp-field {
+        width: 100%;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <h2 class="text-center mb-2">Verify OTP</h2>
+        <p class="text-muted text-center mb-4">We've sent a 6-digit code to your email.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group mb-4">
+                <label class="form-label">Enter 6-digit OTP</label>
+                <input type="text" name="otp" class="form-control form-control-lg otp-field" maxlength="6"
+                    placeholder="000000" pattern="\d{6}" required autofocus>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">Verify OTP</button>
+                <p class="text-center mt-3">
+                    Didn't receive code? <a href="{% url 'forgot_password' %}">Resend</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

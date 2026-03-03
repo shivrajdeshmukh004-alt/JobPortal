@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Post New Job - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+{{ form.media }}
+<style>
+    .job-form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #E87461 0%, #D66554 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+    }
+
+    .card-body-scroll {
+        padding: 2.5rem;
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 0.75rem;
+    }
+
+    .form-section-title i {
+        color: #E87461;
+    }
+
+    /* Auto-suggestion Styles */
+    .suggestion-container {
+        position: relative;
+    }
+
+    .suggestions-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .suggestion-item:hover {
+        background: #f7fafc;
+        color: #E87461;
+    }
+
+    /* Skills Tags */
+    .skills-tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .skill-tag {
+        background: #f0f4ff;
+        color: #4a6cf7;
+        padding: 0.4rem 0.8rem;
+        border-radius: 100px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .skill-tag i {
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .skill-tag i:hover {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="job-form-container">
+    <div class="form-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'hr_dashboard' %}" class="btn btn-sm"
+                style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="mb-0">{% if edit_mode %}Edit Job Opportunity{% else %}Create Job Opportunity{% endif %}</h2>
+                <p class="mb-0 opacity-75">{% if edit_mode %}Update the details to refine your posting{% else %}Define
+                    the requirements to find your perfect candidate{% endif %}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body-scroll">
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" id="jobForm">
+            {% csrf_token %}
+
+            <!-- 1. BASIC INFORMATION -->
+            <div class="mb-5">
+                <h5 class="form-section-title"><i class="bi bi-briefcase"></i> Basic Information</h5>
+
+                <div class="mb-4 suggestion-container">
+                    <label class="form-label">Job Title *</label>
+                    <input type="text" class="form-control {% if form.title.errors %}is-invalid{% endif %}" name="title"
+                        id="jobTitle" placeholder="e.g. Senior Python Developer"
+                        value="{{ form.title.value|default:'' }}" required>
+                    {% if form.title.errors %}
+                    <div class="invalid-feedback">{{ form.title.errors.0 }}</div>
+                    {% endif %}
+                    <div id="titleSuggestions" class="suggestions-list"></div>
+                    <small class="text-muted">Common titles will be suggested as you type</small>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Company Name *</label>
+                    <input type="text" class="form-control {% if form.company_name.errors %}is-invalid{% endif %}"
+                        name="company_name" id="companyName" placeholder="e.g. RecruitAICorp, Google, Microsoft"
+                        value="{{ form.company_name.value|default:'' }}" required>
+                    {% if form.company_name.errors %}
+                    <div class="invalid-feedback">{{ form.company_name.errors.0 }}</div>
+                    {% endif %}
+                    <small class="text-muted">The company offering this position</small>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-8 suggestion-container">
+                        <label class="form-label">Location *</label>
+                        <input type="text" class="form-control {% if form.location.errors %}is-invalid{% endif %}"
+                            name="location" id="jobLocation" placeholder="e.g. Bangalore, Remote, Hybrid"
+                            value="{{ form.location.value|default:'' }}" required>
+                        {% if form.location.errors %}
+                        <div class="invalid-feedback">{{ form.location.errors.0 }}</div>
+                        {% endif %}
+                        <div id="locationSuggestions" class="suggestions-list"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Vacancies *</label>
+                        <input type="number" class="form-control {% if form.vacancy.errors %}is-invalid{% endif %}"
+                            name="vacancy" min="1" value="{{ form.vacancy.value|default:'1' }}" required>
+                        {% if form.vacancy.errors %}
+                        <div class="invalid-feedback">{{ form.vacancy.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. QUALIFICATIONS & SKILLS -->
+            <div class="mb-5">
+                <h5 class="form-section-title"><i class="bi bi-gear"></i> Requirements</h5>
+
+                <div class="mb-4">
+                    <label class="form-label">Eligibility Criteria *</label>
+                    <textarea class="form-control {% if form.eligibility.errors %}is-invalid{% endif %}"
+                        name="eligibility" rows="2"
+                        placeholder="e.g. B.Tech/BE in Computer Science, Min 2 years experience"
+                        required>{{ form.eligibility.value|default:'' }}</textarea>
+                    {% if form.eligibility.errors %}
+                    <div class="invalid-feedback">{{ form.eligibility.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Required Skills *</label>
+                    <div id="skillsTagContainer" class="skills-tag-container"></div>
+                    <input type="text" class="form-control {% if form.required_skills.errors %}is-invalid{% endif %}"
+                        id="skillsInput" placeholder="Type a skill and press Enter...">
+                    {% if form.required_skills.errors %}
+                    <div class="invalid-feedback">{{ form.required_skills.errors.0 }}</div>
+                    {% endif %}
+                    <input type="hidden" name="required_skills" id="id_required_skills"
+                        value="{{ form.required_skills.value|default:'' }}">
+                    <div id="skillsSuggestions" class="suggestions-list"></div>
+                    <small class="text-muted">Targeted skills for AI matching (e.g. Django, Python, AWS)</small>
+                </div>
+            </div>
+
+            <!-- 3. ELIGIBILITY CRITERIA (OPTIONAL) -->
+            <div class="mb-5">
+                <h5 class="form-section-title"><i class="bi bi-clipboard-check"></i> Eligibility Criteria (Optional)
+                </h5>
+                <p class="text-muted small mb-3">
+                    <i class="bi bi-info-circle"></i> Leave any field blank to skip that criterion. Only candidates
+                    meeting all specified criteria will be eligible to apply.
+                </p>
+
+                <!-- Academic Percentages -->
+                <div class="mb-4">
+                    <h6 class="mb-3">Academic Requirements</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Minimum 10th %</label>
+                            {{ form.min_tenth_percentage }}
+                            {% if form.min_tenth_percentage.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_tenth_percentage.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ form.min_tenth_percentage.help_text }}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Minimum 12th/Diploma %</label>
+                            {{ form.min_twelfth_percentage }}
+                            {% if form.min_twelfth_percentage.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_twelfth_percentage.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ form.min_twelfth_percentage.help_text }}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Minimum Degree %</label>
+                            {{ form.min_degree_percentage }}
+                            {% if form.min_degree_percentage.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_degree_percentage.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ form.min_degree_percentage.help_text }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Age Range -->
+                <div class="mb-4">
+                    <h6 class="mb-3">Age Requirements</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Minimum Age (years)</label>
+                            {{ form.min_age }}
+                            {% if form.min_age.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_age.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ form.min_age.help_text }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Maximum Age (years)</label>
+                            {{ form.max_age }}
+                            {% if form.max_age.errors %}
+                            <div class="invalid-feedback d-block">{{ form.max_age.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ form.max_age.help_text }}</small>
+                        </div>
+                    </div>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger mt-2">{{ form.non_field_errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 4. DESCRIPTION & DEADLINE -->
+            <div class="mb-5">
+                <h5 class="form-section-title"><i class="bi bi-card-text"></i> Job Details</h5>
+
+                <div class="mb-4">
+                    <label class="form-label">Full Job Description *</label>
+                    <div class="{% if form.description.errors %}is-invalid-border{% endif %}">
+                        {{ form.description }}
+                    </div>
+                    {% if form.description.errors %}
+                    <small class="text-danger">{{ form.description.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Application Deadline (Expiry Date) *</label>
+                        {{ form.expiry_date }}
+                        {% if form.expiry_date.errors %}
+                        <div class="invalid-feedback d-block">{{ form.expiry_date.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">Candidates cannot apply after this date/time</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top">
+                <a href="{% url 'hr_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-cloud-arrow-up me-2"></i>
+                    {% if edit_mode %}Update Posting{% else %}Post Vacancy{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const TITLES = ["Software Engineer", "Full Stack Developer", "Data Scientist", "Python Developer", "UI/UX Designer", "Product Manager", "Machine Learning Engineer", "DevOps Engineer", "Project Manager", "Business Analyst"];
+    const LOCATIONS = ["Remote", "Hybrid", "Bangalore", "Mumbai", "Pune", "Hyderabad", "Delhi NCR", "Chennai", "Kolkata", "Ahmedabad", "Overseas"];
+    const SKILLS_LIST = ["Python", "Django", "JavaScript", "React", "Node.js", "Java", "Spring Boot", "SQL", "PostgreSQL", "MongoDB", "AWS", "Azure", "Docker", "Kubernetes", "Git", "GitHub", "Machine Learning", "Data Science", "HTML", "CSS", "Tailwind CSS", "Bootstrap", "Flutter", "Swift", "Kotlin", "Android", "C++", "Cybersecurity", "TypeScript", "Next.js"];
+
+    function setupSuggestions(inputId, listId, data) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+
+        input.addEventListener('input', () => {
+            const val = input.value.toLowerCase();
+            if (!val) { list.style.display = 'none'; return; }
+
+            const filtered = data.filter(item => item.toLowerCase().includes(val));
+            if (filtered.length) {
+                list.innerHTML = filtered.map(item => `<div class="suggestion-item">${item}</div>`).join('');
+                list.style.display = 'block';
+            } else {
+                list.style.display = 'none';
+            }
+        });
+
+        list.addEventListener('click', (e) => {
+            if (e.target.classList.contains('suggestion-item')) {
+                input.value = e.target.textContent;
+                list.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target)) list.style.display = 'none';
+        });
+    }
+
+    setupSuggestions('jobTitle', 'titleSuggestions', TITLES);
+    setupSuggestions('jobLocation', 'locationSuggestions', LOCATIONS);
+
+    // Skills Tag Logic
+    let selectedSkills = [];
+    const skillsInput = document.getElementById('skillsInput');
+    const skillsHidden = document.getElementById('id_required_skills');
+    const skillsContainer = document.getElementById('skillsTagContainer');
+    const skillsList = document.getElementById('skillsSuggestions');
+
+    function initSkills() {
+        if (skillsHidden.value) {
+            selectedSkills = skillsHidden.value.split(',').map(s => s.trim()).filter(s => s);
+            renderSkills();
+        }
+    }
+
+    function renderSkills() {
+        skillsContainer.innerHTML = selectedSkills.map(s => `
+            <div class="skill-tag">
+                ${s} <i class="bi bi-x" onclick="removeSkill('${s}')"></i>
+            </div>
+        `).join('');
+        skillsHidden.value = selectedSkills.join(', ');
+    }
+
+    function addSkill(skill) {
+        skill = skill.trim();
+        if (skill && !selectedSkills.includes(skill)) {
+            selectedSkills.push(skill);
+            renderSkills();
+        }
+    }
+
+    function removeSkill(skill) {
+        selectedSkills = selectedSkills.filter(s => s !== skill);
+        renderSkills();
+    }
+
+    skillsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addSkill(skillsInput.value);
+            skillsInput.value = '';
+            skillsList.style.display = 'none';
+        }
+    });
+
+    skillsInput.addEventListener('input', () => {
+        const val = skillsInput.value.toLowerCase();
+        if (!val) { skillsList.style.display = 'none'; return; }
+
+        const filtered = SKILLS_LIST.filter(item => item.toLowerCase().includes(val) && !selectedSkills.includes(item));
+        if (filtered.length) {
+            skillsList.innerHTML = filtered.map(item => `<div class="suggestion-item">${item}</div>`).join('');
+            skillsList.style.display = 'block';
+        } else {
+            skillsList.style.display = 'none';
+        }
+    });
+
+    skillsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('suggestion-item')) {
+            addSkill(e.target.textContent);
+            skillsInput.value = '';
+            skillsList.style.display = 'none';
+        }
+    });
+
+    // Final sync on submit
+    document.getElementById('jobForm').addEventListener('submit', function () {
+        if (skillsInput.value.trim()) {
+            addSkill(skillsInput.value);
+        }
+        renderSkills();
+    });
+
+    window.addEventListener('load', initSkills);
+
+</script>
+{% endblock %}

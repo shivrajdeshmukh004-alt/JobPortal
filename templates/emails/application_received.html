@@ -1,0 +1,22 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h1>Application Received</h1>
+<p>Hi {{ candidate_name }},</p>
+
+<p>Thanks for applying to <strong>{{ job_title|title }}</strong> at <strong>{{ company_name|title }}</strong>. We have
+    successfully
+    received your application.</p>
+
+<div class="info-box">
+    <p style="margin: 0;"><strong>Match Score:</strong> {{ score }}%</p>
+    <p style="margin: 5px 0 0 0; font-size: 13px; color: #666;">Based on your skills and the job description.</p>
+</div>
+
+<p>Our team will review your application and get back to you soon. You can track the status of your application on your
+    dashboard.</p>
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="btn">View Application Status</a>
+</div>
+{% endblock %}

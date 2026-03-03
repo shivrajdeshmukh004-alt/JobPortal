@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}HR Dashboard - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<style>
+    .hr-header {
+        background: linear-gradient(135deg, #E87461 0%, #D66554 100%);
+        color: white;
+        padding: var(--spacing-xl) var(--spacing-lg);
+        margin: calc(var(--spacing-lg) * -1) calc(var(--spacing-lg) * -1) var(--spacing-lg);
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.primary {
+        background: rgba(232, 116, 97, 0.1);
+        color: var(--coral-primary);
+    }
+
+    .stat-icon.success {
+        background: rgba(76, 175, 80, 0.1);
+        color: var(--green-success);
+    }
+
+    .stat-icon.info {
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--blue-info);
+    }
+
+    .stat-content h3 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+    }
+
+    .stat-content p {
+        margin: 0;
+        color: var(--gray-text);
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="applications-container">
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="hr-header">
+            <h2 style="margin: 0;">
+                <i class="bi bi-briefcase"></i> HR Dashboard
+            </h2>
+            <p style="margin: 8px 0 0 0; opacity: 0.9;">Manage your job postings and applicants</p>
+        </div>
+
+        <div style="padding: var(--spacing-lg);">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon primary">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ total_jobs }}</h3>
+                        <p>Total Job Posts</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ total_applicants }}</h3>
+                        <p>Total Applicants</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon info">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ shortlisted_count }}</h3>
+                        <p>Shortlisted Candidates</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 style="margin: 0;">Your Job Postings</h4>
+                <a href="{% url 'create_job' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Post New Job
+                </a>
+            </div>
+
+            <!-- Job Posts -->
+            {% if jobs %}
+            {% for job in jobs %}
+            <div class="job-card">
+                <div class="job-card-header">
+                    <div class="job-logo">
+                        {{ job.title|first|upper }}
+                    </div>
+                    <div class="job-info">
+                        <h3 class="job-title">{{ job.title }}</h3>
+                        <p class="job-company">Posted {{ job.created_at|timesince }} ago</p>
+                    </div>
+                    <div class="job-actions">
+                        <a href="{% url 'job_applicants' job.id %}" class="job-action-btn" title="View Applicants">
+                            <i class="bi bi-people"></i>
+                        </a>
+                        <a href="{% url 'edit_job' job.id %}" class="job-action-btn" title="Edit Job">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{% url 'delete_job' job.id %}" method="post" style="display: inline;"
+                            onsubmit="return confirm('Are you sure you want to delete this job?');">
+                            {% csrf_token %}
+                            <button type="submit" class="job-action-btn p-0 border-0 bg-transparent text-danger"
+                                title="Delete Job">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="job-tags">
+                    {% for skill in job.required_skills|split:',' %}
+                    <span class="tag tag-outline">{{ skill|strip }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="job-meta">
+                    <div class="job-meta-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>{{ job.location }}</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <i class="bi bi-calendar"></i>
+                        <span>{{ job.vacancy }} positions</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <i class="bi bi-person-check"></i>
+                        <span>{{ job.applications.count }} applicants</span>
+                    </div>
+                </div>
+
+                <div class="job-footer">
+                    <div class="job-posted">
+                        {% if job.expiry_date and job.expiry_date < now %} <span class="tag tag-danger">
+                            Expired</span>
+                            {% else %}
+                            <span class="tag tag-success">Active</span>
+                            {% endif %}
+                    </div>
+                    <div class="job-buttons">
+                        <a href="{% url 'job_applicants' job.id %}" class="btn btn-outline btn-sm">
+                            <i class="bi bi-eye"></i> View Applicants
+                        </a>
+                        <a href="{% url 'edit_job' job.id %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-pencil-square"></i> Edit Job
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center" style="padding: 60px 20px;">
+                <div style="font-size: 80px; color: var(--coral-primary); margin-bottom: 20px;">
+                    <i class="bi bi-briefcase"></i>
+                </div>
+                <h3>No Job Postings Yet</h3>
+                <p class="text-muted">Create your first job posting to start receiving applications!</p>
+                <a href="{% url 'create_job' %}" class="btn btn-primary btn-lg mt-3">
+                    <i class="bi bi-plus-circle"></i> Post Your First Job
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

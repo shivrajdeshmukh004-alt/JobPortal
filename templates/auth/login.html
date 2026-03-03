@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - RecruitAI Portal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card-wrapper">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="auth-icon">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to access your RecruitAI Portal</p>
+            </div>
+
+            <div class="auth-card-body">
+                {% if form.errors %}
+                <div class="auth-alert danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>Login Failed</strong><br>
+                        Please check your username and password.
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}" class="auth-form">
+                    {% csrf_token %}
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.username.id_for_label }}" class="auth-form-label">
+                            Username
+                        </label>
+                        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
+                            class="auth-form-control" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="auth-form-group">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="{{ form.password.id_for_label }}" class="auth-form-label"
+                                style="margin-bottom: 0;">
+                                Password
+                            </label>
+                            <a href="{% url 'forgot_password' %}"
+                                style="font-size: 0.85rem; color: var(--coral-primary); text-decoration: none;">Forgot
+                                Password?</a>
+                        </div>
+                        <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"
+                            class="auth-form-control" placeholder="Enter your password" required>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <button type="submit" class="auth-btn auth-btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Sign In</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>New to RecruitAI?</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <a href="{% url 'candidate_signup' %}" class="auth-btn auth-btn-outline"
+                        style="text-decoration: none;">
+                        <i class="bi bi-person"></i>
+                        <span>Candidate</span>
+                    </a>
+                    <a href="{% url 'hr_signup' %}" class="auth-btn auth-btn-outline" style="text-decoration: none;">
+                        <i class="bi bi-briefcase"></i>
+                        <span>HR</span>
+                    </a>
+                </div>
+
+                <div class="auth-footer">
+                    <div class="auth-security-badge">
+                        <p class="auth-security-text">
+                            <i class="bi bi-shield-check"></i>
+                            Secure authentication • Cloud-powered storage
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}Career Resources - RecruitAI{% endblock %}
+
+{% block content %}
+<style>
+    .resources-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .resources-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .resource-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .resource-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .resource-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tip-card {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .section-title {
+        color: #667eea;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+        font-weight: 700;
+    }
+</style>
+
+<div class="resources-hero">
+    <div class="container">
+        <h1><i class="bi bi-book"></i> Career Resources</h1>
+        <p>Expert advice to help you succeed in your career journey</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h4>Resume Writing</h4>
+                <p>Learn how to create a compelling resume that stands out to recruiters and passes ATS systems.</p>
+                <a href="#resume" class="btn btn-outline-primary">Learn More</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <h4>Interview Prep</h4>
+                <p>Master the art of interviewing with our comprehensive guides and practice questions.</p>
+                <a href="#interview" class="btn btn-outline-primary">Learn More</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h4>Career Growth</h4>
+                <p>Strategies for advancing your career and achieving your professional goals.</p>
+                <a href="#growth" class="btn btn-outline-primary">Learn More</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="resume">
+        <h2 class="section-title">Resume Writing Tips</h2>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-check-circle text-success"></i> Keep it Concise</h5>
+            <p>Limit your resume to 1-2 pages. Recruiters spend an average of 6 seconds on initial resume reviews.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-check-circle text-success"></i> Use Action Verbs</h5>
+            <p>Start bullet points with strong action verbs like "Led," "Developed," "Implemented," or "Achieved."</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-check-circle text-success"></i> Quantify Achievements</h5>
+            <p>Include numbers and metrics: "Increased sales by 35%" or "Managed team of 12 developers."</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-check-circle text-success"></i> Tailor to the Job</h5>
+            <p>Customize your resume for each application by highlighting relevant skills and experiences.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-check-circle text-success"></i> Optimize for ATS</h5>
+            <p>Use standard section headings and include keywords from the job description.</p>
+        </div>
+    </div>
+
+    <div id="interview">
+        <h2 class="section-title">Interview Preparation</h2>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-lightbulb text-warning"></i> Research the Company</h5>
+            <p>Understand the company's mission, values, products, and recent news before your interview.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-lightbulb text-warning"></i> Practice Common Questions</h5>
+            <p>Prepare answers for "Tell me about yourself," "Why this company?" and "What are your strengths?"</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-lightbulb text-warning"></i> Use the STAR Method</h5>
+            <p>Structure behavioral answers: Situation, Task, Action, Result.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-lightbulb text-warning"></i> Prepare Questions</h5>
+            <p>Have 3-5 thoughtful questions ready to ask the interviewer about the role and company.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-lightbulb text-warning"></i> Follow Up</h5>
+            <p>Send a thank-you email within 24 hours expressing your interest and appreciation.</p>
+        </div>
+    </div>
+
+    <div id="growth">
+        <h2 class="section-title">Career Growth Strategies</h2>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-trophy text-primary"></i> Continuous Learning</h5>
+            <p>Stay updated with industry trends and invest in professional development and certifications.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-trophy text-primary"></i> Build Your Network</h5>
+            <p>Attend industry events, join professional groups, and maintain relationships with colleagues.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-trophy text-primary"></i> Seek Mentorship</h5>
+            <p>Find mentors who can provide guidance and help you navigate your career path.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-trophy text-primary"></i> Take on Challenges</h5>
+            <p>Volunteer for stretch assignments and projects outside your comfort zone.</p>
+        </div>
+
+        <div class="tip-card">
+            <h5><i class="bi bi-trophy text-primary"></i> Document Achievements</h5>
+            <p>Keep a record of your accomplishments for performance reviews and future job applications.</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-5 p-5"
+        style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 16px;">
+        <h3 class="mb-4">Ready to Start Your Journey?</h3>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'candidate_dashboard' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-search"></i> Browse Jobs
+            </a>
+            <a href="{% url 'update_profile' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-person"></i> Update Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

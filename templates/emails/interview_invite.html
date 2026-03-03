@@ -1,0 +1,27 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>Interview Invitation</h2>
+<p>Dear {{ candidate_name }},</p>
+
+<p>We are excited to invite you to the <strong>{{ round_name }}</strong> for the position of <strong>{{ job_title|title
+        }}</strong> at {{ company_name|title }}.</p>
+
+<p>Please find the details of your scheduled session below:</p>
+
+<div class="details-box">
+    <p><strong>Round:</strong> {{ round_name }}</p>
+    <p><strong>Date & Time:</strong> {{ interview_date }}</p>
+    <p><strong>Meeting Link:</strong> <a href="{{ link }}" class="link">{{ link }}</a></p>
+</div>
+
+<p>Please make sure to join via the link at least 5 minutes before the scheduled time. Ensure you have a stable internet
+    connection.</p>
+
+<div class="button-container">
+    <a href="{{ link }}" class="btn">Join Interview</a>
+</div>
+
+<p>Good luck!</p>
+<p>Best regards,<br>The {{ company_name }} Team</p>
+{% endblock %}

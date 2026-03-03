@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}My Applications - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="applications-container">
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="applications-header">
+            <h2 style="margin: 0; color: white;">Your Applied Jobs</h2>
+        </div>
+
+        <div style="padding: var(--spacing-lg);">
+            {% if my_applications %}
+            {% for application in my_applications %}
+            <div class="job-card">
+                <div class="job-card-header">
+                    <div class="job-logo">
+                        {{ application.job.company_name|first|upper }}
+                    </div>
+                    <div class="job-info">
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="job-title" style="margin: 0;">{{ application.job.title }}</h3>
+                            {% if application.status == 'SHORTLISTED' %}
+                            <span class="tag tag-success" style="font-size: 11px; padding: 2px 8px;">Shortlisted</span>
+                            {% elif application.status == 'SELECTED' %}
+                            <span class="tag tag-success" style="font-size: 11px; padding: 2px 8px;">Selected</span>
+                            {% elif application.status == 'REJECTED' %}
+                            <span class="tag"
+                                style="background: #FFEBEE; color: #C62828; font-size: 11px; padding: 2px 8px;">Rejected</span>
+                            {% else %}
+                            <span class="tag tag-info" style="font-size: 11px; padding: 2px 8px;">Pending</span>
+                            {% endif %}
+                            <span class="tag tag-outline"
+                                style="font-size: 11px; padding: 2px 8px; border-color: var(--coral-primary); color: var(--coral-primary);">
+                                {{ application.score }}% Match
+                            </span>
+                        </div>
+                        <p class="job-company">{{ application.job.company_name }}</p>
+                    </div>
+                    <div class="job-actions">
+                        <button class="job-action-btn" title="Saved">
+                            <i class="bi bi-bookmark-fill" style="color: var(--coral-primary);"></i>
+                        </button>
+                        <button class="job-action-btn" title="Share Job">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="job-tags">
+                    {% for skill in application.job.required_skills|split:',' %}
+                    <span class="tag tag-outline">{{ skill|strip }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="job-meta">
+                    <div class="job-meta-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>{{ application.job.location }}</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <i class="bi bi-briefcase"></i>
+                        <span>Full Time</span>
+                    </div>
+                    <div class="job-meta-item">
+                        <i class="bi bi-currency-rupee"></i>
+                        <span>Market Standard</span>
+                    </div>
+                </div>
+
+                <div class="job-footer">
+                    <div class="job-posted">
+                        <span>Applied {{ application.applied_at|timesince }} ago</span>
+                        <span class="text-muted"> • Status: {{ application.get_status_display }}</span>
+                    </div>
+                    <div class="job-buttons">
+                        <button class="btn btn-outline btn-sm" onclick="showJobDetails('{{ application.job.id }}')">
+                            View Details
+                        </button>
+
+                        <!-- Hidden Data for Job Details -->
+                        <div id="job-data-{{ application.job.id }}" style="display: none;">
+                            <div class="data-title">{{ application.job.title }}</div>
+                            <div class="data-description">{{ application.job.description|safe }}</div>
+                            <div class="data-skills">{{ application.job.required_skills }}</div>
+                            <div class="data-eligibility">{{ application.job.eligibility }}</div>
+                            <div class="data-location">{{ application.job.location }}</div>
+                            <div class="data-vacancy">{{ application.job.vacancy }}</div>
+                            <div class="data-company">{{ application.job.company_name }}</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="showStatusModal('{{ application.id }}', '{{ application.job.title|escapejs }}', '{{ application.applied_at|date:'d M, Y' }}', '{{ application.status }}', '{{ application.job.company_name|escapejs }}')">
+                            <i class="bi bi-graph-up-arrow"></i> Track Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Pagination (Fixed) -->
+            {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+                    class="pagination-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                {% else %}
+                <button class="pagination-btn" disabled>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                {% endif %}
+
+                <button class="pagination-btn active">{{ page_obj.number }}</button>
+
+                {% if page_obj.has_next %}
+                <a href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+                    class="pagination-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                {% else %}
+                <button class="pagination-btn" disabled>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center" style="padding: 60px 20px;">
+                <div style="font-size: 80px; color: var(--coral-primary); margin-bottom: 20px;">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3>No Applications Yet</h3>
+                <p class="text-muted">Start applying to jobs to see them here!</p>
+                <a href="{% url 'candidate_dashboard' %}" class="btn btn-primary mt-3">
+                    Browse Jobs
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Application Status Modal -->
+<div class="modal-overlay" id="statusModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 style="margin: 0;">Application Status</h4>
+            <button class="modal-close" onclick="closeStatusModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div
+                style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-gray);">
+                <div>
+                    <div class="text-muted" style="font-size: 13px; margin-bottom: 4px;">Job Title</div>
+                    <div id="modalJobTitle" style="font-weight: 600;"></div>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 13px; margin-bottom: 4px;">Applied Date</div>
+                    <div id="modalAppliedDate" style="font-weight: 600;"></div>
+                </div>
+                <div>
+                    <div class="text-muted" style="font-size: 13px; margin-bottom: 4px;">Status</div>
+                    <div id="modalStatus"></div>
+                </div>
+            </div>
+
+            <div style="background: #1A1A1A; color: white; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="font-weight: 600; font-size: 16px;" id="modalCompanyName">Company Name</div>
+            </div>
+
+            <div style="background: #F5F5F5; padding: 16px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                    onclick="toggleDetails()">
+                    <h5 style="margin: 0;">View Tracking Details</h5>
+                    <i class="bi bi-chevron-up" id="detailsIcon"></i>
+                </div>
+                <div id="statusDetails" style="margin-top: 16px;">
+                    <div style="display: flex; gap: 16px; padding: 16px; background: white; border-radius: 8px;">
+                        <div style="color: var(--coral-primary); font-size: 20px;">
+                            <i class="bi bi-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;" id="statusMessage"></div>
+                            <div class="text-muted" style="font-size: 13px;" id="statusDate"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job Details Modal -->
+<div class="modal-overlay" id="jobDetailsModal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <div>
+                <h4 style="margin: 0;" id="jobModalTitle">Job Title</h4>
+                <p class="text-muted" style="margin: 4px 0 0 0;" id="jobModalCompany">Company Name</p>
+            </div>
+            <button class="modal-close" onclick="closeJobModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="job-meta"
+                style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-gray);">
+                <div class="job-meta-item">
+                    <i class="bi bi-geo-alt" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalLocation">Location</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-people" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalVacancy">1</span> Openings
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-check-circle" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalEligibility">Eligibility</span>
+                </div>
+            </div>
+
+            <h5 style="margin-bottom: 12px;">Description</h5>
+            <div id="jobModalDescription" style="margin-bottom: 24px; line-height: 1.6;">
+                <!-- Rich text content -->
+            </div>
+
+            <h5 style="margin-bottom: 12px;">Required Skills</h5>
+            <div id="jobModalSkills" class="job-tags">
+                <!-- Skills -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showStatusModal(appId, jobTitle, appliedDate, status, companyName) {
+        document.getElementById('modalJobTitle').textContent = jobTitle;
+        document.getElementById('modalAppliedDate').textContent = appliedDate;
+        document.getElementById('modalCompanyName').textContent = companyName;
+
+        const statusBadge = document.getElementById('modalStatus');
+        let statusClass = 'status-applied';
+        let statusText = 'Applied';
+
+        if (status === 'SHORTLISTED') {
+            statusClass = 'status-shortlisted';
+            statusText = 'Shortlisted';
+        } else if (status === 'SELECTED') {
+            statusClass = 'status-shortlisted';
+            statusText = 'Selected';
+        } else if (status === 'REJECTED') {
+            statusClass = 'status-rejected';
+            statusText = 'Rejected';
+        } else if (status === 'CONFIRMED') {
+            statusClass = 'status-shortlisted';
+            statusText = 'Confirmed';
+        }
+
+        statusBadge.innerHTML = `<span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusText}</span>`;
+
+        document.getElementById('statusMessage').textContent = `Your application for ${jobTitle} at ${companyName} is currently ${statusText.toLowerCase()}.`;
+        document.getElementById('statusDate').textContent = appliedDate;
+
+        document.getElementById('statusModal').style.display = 'flex';
+    }
+
+    function closeStatusModal() {
+        document.getElementById('statusModal').style.display = 'none';
+    }
+
+    function toggleDetails() {
+        const details = document.getElementById('statusDetails');
+        const icon = document.getElementById('detailsIcon');
+        if (details.style.display === 'none') {
+            details.style.display = 'block';
+            icon.className = 'bi bi-chevron-up';
+        } else {
+            details.style.display = 'none';
+            icon.className = 'bi bi-chevron-down';
+        }
+    }
+
+    function showJobDetails(jobId) {
+        const dataContainer = document.getElementById(`job-data-${jobId}`);
+        if (!dataContainer) {
+            console.error('Job data container not found for ID:', jobId);
+            return;
+        }
+
+        // Populate Modal
+        document.getElementById('jobModalTitle').textContent = dataContainer.querySelector('.data-title').textContent;
+        document.getElementById('jobModalCompany').textContent = dataContainer.querySelector('.data-company').textContent;
+        document.getElementById('jobModalLocation').textContent = dataContainer.querySelector('.data-location').textContent;
+        document.getElementById('jobModalVacancy').textContent = dataContainer.querySelector('.data-vacancy').textContent;
+        document.getElementById('jobModalEligibility').textContent = dataContainer.querySelector('.data-eligibility').textContent;
+        document.getElementById('jobModalDescription').innerHTML = dataContainer.querySelector('.data-description').innerHTML;
+
+        // Populate Skills
+        const skillsText = dataContainer.querySelector('.data-skills').textContent;
+        const skillsContainer = document.getElementById('jobModalSkills');
+        skillsContainer.innerHTML = '';
+
+        if (skillsText) {
+            skillsText.split(',').forEach(skill => {
+                if (skill.trim()) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tag tag-outline';
+                    badge.textContent = skill.trim();
+                    skillsContainer.appendChild(badge);
+                }
+            });
+        }
+
+        document.getElementById('jobDetailsModal').style.display = 'flex';
+    }
+
+    function closeJobModal() {
+        document.getElementById('jobDetailsModal').style.display = 'none';
+    }
+
+    // Close Modals on Overlay Click
+    window.addEventListener('click', function (event) {
+        const statusModal = document.getElementById('statusModal');
+        const jobModal = document.getElementById('jobDetailsModal');
+
+        if (event.target === statusModal) {
+            closeStatusModal();
+        }
+        if (event.target === jobModal) {
+            closeJobModal();
+        }
+    });
+
+    // Initial setup to ensure the details are visible
+    document.getElementById('statusDetails').style.display = 'block';
+</script>
+{% endblock %}

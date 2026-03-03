@@ -1,0 +1,16 @@
+django<6.0
+cloudinary
+django-cloudinary-storage
+psycopg2-binary
+dj-database-url
+django-anymail[sendgrid]
+celery
+redis
+django-ckeditor
+gunicorn
+python-dotenv
+whitenoise
+scikit-learn
+PyPDF2
+sambanova
+requests

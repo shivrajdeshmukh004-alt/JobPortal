@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}My Profile - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .profile-card-large {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .profile-banner {
+        height: 160px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        display: none;
+    }
+
+    .profile-header-main {
+        padding: 3rem 3rem 2rem;
+        margin-top: 0;
+        display: flex;
+        align-items: flex-end;
+        gap: 2rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .profile-photo-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 24px;
+        border: 6px solid white;
+        background: white;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        object-fit: cover;
+    }
+
+    .profile-info-main {
+        flex: 1;
+        padding-bottom: 0.5rem;
+    }
+
+    .profile-name-large {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1a1a1a;
+    }
+
+    .profile-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        background: #f0f4ff;
+        color: #4a6cf7;
+        border-radius: 100px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2.5rem 3rem;
+    }
+
+    .detail-section h5 {
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-section h5 i {
+        color: #E87461;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f8f8f8;
+    }
+
+    .info-label {
+        color: #718096;
+        font-size: 0.95rem;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-weight: 600;
+    }
+
+    .skills-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .skill-pill {
+        padding: 0.5rem 1.25rem;
+        background: #f7faff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #4a5568;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .resume-preview-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header-main {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .profile-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .detail-grid {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card-large">
+        <div class="profile-banner"></div>
+
+        <div class="profile-header-main">
+            {% if profile.profile_photo %}
+            <img src="{{ profile.profile_photo.url }}" alt="{{ user.get_full_name }}" class="profile-photo-large">
+            {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|urlencode }}&size=200&background=E87461&color=fff"
+                class="profile-photo-large">
+            {% endif %}
+
+            <div class="profile-info-main">
+                <h1 class="profile-name-large">{{ user.get_full_name|default:user.username }}</h1>
+                <div class="d-flex align-items-center gap-3 mt-1">
+                    <div class="profile-badge">
+                        <i class="bi bi-star-fill"></i>
+                        Profile {{ profile.completeness }}% Complete
+                    </div>
+                    {% if profile.linkedin_url %}
+                    <a href="{{ profile.linkedin_url }}" target="_blank" class="social-link linkedin text-primary"
+                        style="font-size: 1.5rem;"><i class="bi bi-linkedin"></i></a>
+                    {% endif %}
+                    {% if profile.github_url %}
+                    <a href="{{ profile.github_url }}" target="_blank" class="social-link github text-dark"
+                        style="font-size: 1.5rem;"><i class="bi bi-github"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                {% if not is_hr_view %}
+                <a href="{% url 'update_profile' %}" class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-section">
+                <h5><i class="bi bi-person-lines-fill"></i> Personal Details</h5>
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ user.get_full_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Contact</span>
+                    <span class="info-value">{{profile.contact|default:"Not provided"}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{profile.dob|date:"d M, Y"|default:"Not provided"}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ profile.gender|default:"Not provided" }}</span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h5><i class="bi bi-cpu"></i> Professional Skills</h5>
+                <div class="skills-badges">
+                    {% if profile.skills %}
+                    {% for skill in profile.skills|split:',' %}
+                    {% if skill.strip %}
+                    <span class="skill-pill">{{ skill|strip }}</span>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No skills added yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="detail-section" style="grid-column: 1 / -1;">
+                <h5 class="mb-4"><i class="bi bi-mortarboard"></i> Academic Background</h5>
+                <div class="row g-4">
+                    {% with edu=profile.education %}
+                    <!-- 10th -->
+                    <div class="col-md-4">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="text-coral">10th Standard (SSC)</h6>
+                                <p class="mb-1 fw-bold">{{ edu.tenth.school|default:'-' }}</p>
+                                <p class="small text-muted mb-0">Score: {{ edu.tenth.percentage|default:'-' }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 12th -->
+                    <div class="col-md-4">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="text-coral">12th / Diploma ({{ edu.twelfth.type|default:'HSC' }})</h6>
+                                <p class="mb-1 fw-bold">{{ edu.twelfth.school|default:'-' }}</p>
+                                <p class="small text-muted mb-0">Score: {{ edu.twelfth.percentage|default:'-' }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Degree -->
+                    <div class="col-md-4">
+                        <div class="card border-coral" style="border-width: 2px;">
+                            <div class="card-body">
+                                <h6 class="text-coral">Highest: {{ edu.degree.level|default:'Degree' }}</h6>
+                                <p class="mb-1 fw-bold">{{ edu.degree.branch|default:'-' }}</p>
+                                <p class="small text-muted mb-1">{{ edu.degree.college|default:'-' }}</p>
+                                <span class="badge bg-coral">Score: {{ edu.degree.score|default:'-' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="detail-section" style="grid-column: 1 / -1;">
+                <h5><i class="bi bi-kanban"></i> Featured Projects</h5>
+                <div class="row g-4">
+                    {% if profile.projects %}
+                    {% for project in profile.projects %}
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h6 class="fw-bold">{{ project.title }}</h6>
+                                <p class="small text-muted mb-3">{{ project.description|truncatewords:20 }}</p>
+                                <div class="mb-3">
+                                    {% for skill in project.skills|split:',' %}
+                                    <span class="badge bg-light text-dark border">{{ skill|strip }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% if project.link %}
+                                <a href="{{ project.link }}" target="_blank" class="btn btn-sm btn-link p-0 text-coral">
+                                    <i class="bi bi-github"></i> View Project
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="col-12">
+                        <p class="text-muted">No projects added yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="detail-section" style="grid-column: 1 / -1;">
+                <h5><i class="bi bi-file-earmark-pdf"></i> Master Resume</h5>
+                {% if profile.master_resume %}
+                <div class="resume-preview-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="bi bi-file-earmark-pdf-fill" style="font-size: 2rem; color: #dc3545;"></i>
+                        <div>
+                            <div style="font-weight: 600;">Current Active Resume</div>
+                            <small class="text-muted">Managed via Cloudinary</small>
+                        </div>
+                    </div>
+                    <a href="{{ profile.master_resume.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye"></i> View Resume
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No resume uploaded. Please edit your profile to upload
+                    one.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

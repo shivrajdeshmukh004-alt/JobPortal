@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Dashboard - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Left Sidebar - Filters -->
+    <aside class="filter-sidebar">
+        <form method="get" id="filterForm">
+            <div class="filter-header">
+                <span>Apply Filters</span>
+                <a href="{% url 'candidate_dashboard' %}" style="margin-left: auto; font-size: 0.8rem;">Clear All</a>
+            </div>
+            <div class="filter-body">
+                <!-- Job Roles -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Job Roles</span>
+                        <i class="bi bi-chevron-up"></i>
+                    </div>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            {% if 'analytics' in request.GET|get_list:'role' %}
+                            <input type="checkbox" name="role" value="analytics" onchange="this.form.submit()" checked>
+                            {% else %}
+                            <input type="checkbox" name="role" value="analytics" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Analytics</span>
+                        </label>
+                        <label class="checkbox-label">
+                            {% if 'tech' in request.GET|get_list:'role' %}
+                            <input type="checkbox" name="role" value="tech" onchange="this.form.submit()" checked>
+                            {% else %}
+                            <input type="checkbox" name="role" value="tech" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Technology</span>
+                        </label>
+                        <label class="checkbox-label">
+                            {% if 'software' in request.GET|get_list:'role' %}
+                            <input type="checkbox" name="role" value="software" onchange="this.form.submit()" checked>
+                            {% else %}
+                            <input type="checkbox" name="role" value="software" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Software</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Location</span>
+                        <i class="bi bi-chevron-up"></i>
+                    </div>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            {% if 'gurgaon' in request.GET|get_list:'location' %}
+                            <input type="checkbox" name="location" value="gurgaon" onchange="this.form.submit()"
+                                checked>
+                            {% else %}
+                            <input type="checkbox" name="location" value="gurgaon" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Gurgaon</span>
+                        </label>
+                        <label class="checkbox-label">
+                            {% if 'hyderabad' in request.GET|get_list:'location' %}
+                            <input type="checkbox" name="location" value="hyderabad" onchange="this.form.submit()"
+                                checked>
+                            {% else %}
+                            <input type="checkbox" name="location" value="hyderabad" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Hyderabad</span>
+                        </label>
+                        <label class="checkbox-label">
+                            {% if 'bangalore' in request.GET|get_list:'location' %}
+                            <input type="checkbox" name="location" value="bangalore" onchange="this.form.submit()"
+                                checked>
+                            {% else %}
+                            <input type="checkbox" name="location" value="bangalore" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Bangalore</span>
+                        </label>
+                        <label class="checkbox-label">
+                            {% if 'pune' in request.GET|get_list:'location' %}
+                            <input type="checkbox" name="location" value="pune" onchange="this.form.submit()" checked>
+                            {% else %}
+                            <input type="checkbox" name="location" value="pune" onchange="this.form.submit()">
+                            {% endif %}
+                            <span>Pune</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main Content - Job Listings -->
+    <main class="main-content">
+        {% if jobs_with_eligibility %}
+        {% for item in jobs_with_eligibility %}
+        {% with job=item.job eligibility=item.eligibility %}
+        <div class="job-card {% if not eligibility.eligible %}job-card-ineligible{% endif %}">
+            <div class="job-card-header">
+                <div class="job-logo">
+                    {{ job.company_name|first|upper }}
+                </div>
+                <div class="job-info">
+                    <h3 class="job-title">{{ job.title }}</h3>
+                    <p class="job-company">{{ job.company_name }}</p>
+                </div>
+                <div class="job-actions">
+                    {% if not eligibility.eligible %}
+                    <span class="badge bg-danger" style="padding: 6px 12px; font-size: 0.85rem;"
+                        title="{{ eligibility.reasons|join:', ' }}">
+                        <i class="bi bi-x-circle"></i> Not Eligible
+                    </span>
+                    {% endif %}
+                    <button class="job-action-btn" title="Save Job">
+                        <i class="bi bi-bookmark"></i>
+                    </button>
+                    <button class="job-action-btn" title="Share Job">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="job-tags">
+                {% for skill in job.required_skills|split:',' %}
+                <span class="tag tag-outline">{{ skill|strip }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="job-meta">
+                <div class="job-meta-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>{{ job.location }}</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-briefcase"></i>
+                    <span>Full time</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-currency-rupee"></i>
+                    <span>Competitive</span>
+                </div>
+            </div>
+
+            {% if not eligibility.eligible %}
+            <div class="alert alert-warning" style="margin: 12px 0; padding: 10px; font-size: 0.9rem;">
+                <i class="bi bi-exclamation-triangle"></i> <strong>Eligibility Requirements:</strong>
+                <ul style="margin: 8px 0 0 20px; padding: 0;">
+                    {% for reason in eligibility.reasons %}
+                    <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="job-footer">
+                <div class="job-posted">
+                    <span>Posted {{ job.created_at|timesince }} ago</span>
+                    <span class="text-muted"> • Join by: Immediate</span>
+                </div>
+                <div class="job-buttons">
+                    <button class="btn btn-outline btn-sm" onclick="showJobDetails('{{ job.id }}')">View
+                        Details</button>
+                    <div id="job-data-{{ job.id }}" style="display: none;">
+                        <div class="data-title">{{ job.title }}</div>
+                        <div class="data-description">{{ job.description|safe }}</div>
+                        <div class="data-skills">{{ job.required_skills }}</div>
+                        <div class="data-eligibility">{{ job.eligibility }}</div>
+                        <div class="data-location">{{ job.location }}</div>
+                        <div class="data-vacancy">{{ job.vacancy }}</div>
+                        <div class="data-company">{{ job.company_name }}</div>
+                    </div>
+                    {% if eligibility.eligible %}
+                    <a href="{% url 'apply_job' job.id %}" class="btn btn-primary btn-sm">Apply Now</a>
+                    {% else %}
+                    <button class="btn btn-secondary btn-sm" disabled title="You don't meet the eligibility criteria">
+                        <i class="bi bi-lock"></i> Not Eligible
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+                class="pagination-btn">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            {% else %}
+            <button class="pagination-btn" disabled>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            {% endif %}
+
+            <button class="pagination-btn active">{{ page_obj.number }}</button>
+
+            {% if page_obj.has_next %}
+            <a href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+                class="pagination-btn">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            {% else %}
+            <button class="pagination-btn" disabled>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="card text-center" style="padding: 60px 20px;">
+            <div style="font-size: 80px; color: var(--coral-primary); margin-bottom: 20px;">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3>No jobs found matching your filters.</h3>
+            <p class="text-muted"><a href="{% url 'candidate_dashboard' %}">Clear all filters</a></p>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Right Sidebar - Profile Card -->
+    <aside class="profile-sidebar">
+        <div class="profile-card">
+            <div class="profile-photo-wrapper">
+                {% if user_profile.profile_photo %}
+                <img src="{{ user_profile.profile_photo.url }}" alt="{{ user.get_full_name }}" class="profile-photo"
+                    style="object-fit: cover;">
+                {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|urlencode }}&size=100&background=E87461&color=fff"
+                    alt="{{ user.get_full_name }}" class="profile-photo">
+                {% endif %}
+                <a href="{% url 'update_profile' %}" class="profile-edit-icon">
+                    <i class="bi bi-pencil"></i>
+                </a>
+            </div>
+
+            <a href="{% url 'profile_view' %}" style="text-decoration: none; color: inherit;">
+                <h4 class="profile-name">{{ user.get_full_name|default:user.username }}</h4>
+            </a>
+
+            <div class="profile-completion">
+                <p class="profile-completion-text">Your profile is complete for {{ user_profile.completeness|default:0 }}%</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ user_profile.completeness|default:0 }}%"></div>
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="profile-stat-item">
+                    <strong>Applied in {{ my_applications.count }} jobs</strong>
+                </div>
+            </div>
+
+            <a href="{% url 'update_profile' %}" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                <i class="bi bi-pencil-square"></i>
+                Update Profile
+            </a>
+        </div>
+    </aside>
+</div>
+
+<!-- Job Details Modal -->
+<div class="modal-overlay" id="jobDetailsModal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <div>
+                <h4 style="margin: 0;" id="jobModalTitle">Job Title</h4>
+                <p class="text-muted" style="margin: 4px 0 0 0;" id="jobModalCompany">Company Name</p>
+            </div>
+            <button class="modal-close" onclick="closeJobModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="job-meta"
+                style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-gray);">
+                <div class="job-meta-item">
+                    <i class="bi bi-geo-alt" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalLocation">Location</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-people" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalVacancy">1</span> Openings
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-check-circle" style="color: var(--coral-primary);"></i>
+                    <span id="jobModalEligibility">Eligibility</span>
+                </div>
+            </div>
+
+            <h5 style="margin-bottom: 12px;">Description</h5>
+            <div id="jobModalDescription" style="margin-bottom: 24px; line-height: 1.6;">
+                <!-- Rich text content -->
+            </div>
+
+            <h5 style="margin-bottom: 12px;">Required Skills</h5>
+            <div id="jobModalSkills" class="job-tags">
+                <!-- Skills -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Experience Range Slider
+    const experienceRange = document.getElementById('experienceRange');
+    const experienceValue = document.getElementById('experienceValue');
+
+    if (experienceRange) {
+        experienceRange.addEventListener('input', function () {
+            experienceValue.textContent = this.value + ' Yrs';
+        });
+    }
+
+    // Filter Toggle
+    document.querySelectorAll('.filter-section-title').forEach(title => {
+        title.addEventListener('click', function () {
+            const section = this.parentElement;
+            const options = section.querySelector('.filter-options, .range-slider');
+            if (options) {
+                options.style.display = options.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    });
+
+    function showJobDetails(jobId) {
+        const dataContainer = document.getElementById(`job-data-${jobId}`);
+        if (!dataContainer) {
+            console.error('Job data container not found for ID:', jobId);
+            return;
+        }
+
+        // Populate Modal
+        document.getElementById('jobModalTitle').textContent = dataContainer.querySelector('.data-title').textContent;
+        document.getElementById('jobModalCompany').textContent = dataContainer.querySelector('.data-company').textContent;
+        document.getElementById('jobModalLocation').textContent = dataContainer.querySelector('.data-location').textContent;
+        document.getElementById('jobModalVacancy').textContent = dataContainer.querySelector('.data-vacancy').textContent;
+        document.getElementById('jobModalEligibility').textContent = dataContainer.querySelector('.data-eligibility').textContent;
+        document.getElementById('jobModalDescription').innerHTML = dataContainer.querySelector('.data-description').innerHTML;
+
+        // Populate Skills
+        const skillsText = dataContainer.querySelector('.data-skills').textContent;
+        const skillsContainer = document.getElementById('jobModalSkills');
+        skillsContainer.innerHTML = '';
+
+        if (skillsText) {
+            skillsText.split(',').forEach(skill => {
+                if (skill.trim()) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tag tag-outline';
+                    badge.textContent = skill.trim();
+                    skillsContainer.appendChild(badge);
+                }
+            });
+        }
+
+        document.getElementById('jobDetailsModal').style.display = 'flex';
+    }
+
+    function closeJobModal() {
+        document.getElementById('jobDetailsModal').style.display = 'none';
+    }
+
+    // Close Modals on Overlay Click
+    window.addEventListener('click', function (event) {
+        const jobModal = document.getElementById('jobDetailsModal');
+        if (event.target === jobModal) {
+            closeJobModal();
+        }
+    });
+</script>
+{% endblock %}

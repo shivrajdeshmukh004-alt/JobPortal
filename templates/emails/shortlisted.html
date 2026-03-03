@@ -1,0 +1,21 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>Congratulations, {{ candidate_name }}!</h2>
+<p>We are pleased to inform you that your profile has been <strong>shortlisted</strong> for the position of <strong>{{ job_title|title }}</strong> at {{ company_name|title }}.</p>
+
+<p>Our recruitment team was impressed with your qualifications and experience. This is an exciting first step!</p>
+
+<div class="details-box">
+    <p><strong>Next Steps:</strong></p>
+    <p>Our team is currently reviewing the shortlisted candidates. If selected for the next round, you will receive a separate invitation with interview details shortly.</p>
+</div>
+
+<p>You can track your application status by logging into your dashboard.</p>
+
+<div class="button-container">
+    <a href="http://127.0.0.1:8000/candidate/applications/" class="btn">View Application Status</a>
+</div>
+
+<p>Best regards,<br>The {{ company_name }} Team</p>
+{% endblock %}

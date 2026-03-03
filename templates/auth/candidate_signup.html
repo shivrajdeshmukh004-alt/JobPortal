@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Candidate Registration - RecruitAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card-wrapper">
+        <div class="auth-card">
+            <div class="auth-card-header candidate">
+                <div class="auth-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <h1 class="auth-title">Join as Candidate</h1>
+                <p class="auth-subtitle">Start your career journey with us</p>
+            </div>
+
+            <div class="auth-card-body">
+                {% if form.non_field_errors %}
+                <div class="auth-alert danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>{{ form.non_field_errors }}</div>
+                </div>
+                {% endif %}
+
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+
+                    <div class="auth-form-row">
+                        <div class="auth-form-group">
+                            <label for="{{ form.first_name.id_for_label }}" class="auth-form-label">
+                                First Name
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            <div class="auth-form-error">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="auth-form-group">
+                            <label for="{{ form.last_name.id_for_label }}" class="auth-form-label">
+                                Last Name
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            <div class="auth-form-error">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.username.id_for_label }}" class="auth-form-label">
+                            Username
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="auth-form-error">{{ form.username.errors }}</div>
+                        {% endif %}
+                        {% if form.username.help_text %}
+                        <small class="auth-form-help">{{ form.username.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.email.id_for_label }}" class="auth-form-label">
+                            Email Address
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="auth-form-error">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.password1.id_for_label }}" class="auth-form-label">
+                            Password
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <div class="auth-form-error">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        {% if form.password1.help_text %}
+                        <small class="auth-form-help">{{ form.password1.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.password2.id_for_label }}" class="auth-form-label">
+                            Confirm Password
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <div class="auth-form-error">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn-success">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Create Candidate Account</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p class="auth-footer-text">
+                        Already have an account?
+                        <a href="{% url 'login' %}" class="auth-footer-link candidate">Sign In</a>
+                    </p>
+                    <p class="auth-footer-text">
+                        Are you a recruiter?
+                        <a href="{% url 'hr_signup' %}" class="auth-footer-link candidate">Register as HR</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add auth-form-control class to Django form fields
+    document.addEventListener('DOMContentLoaded', function () {
+        const formInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+        formInputs.forEach(input => {
+            input.classList.add('auth-form-control', 'candidate');
+        });
+    });
+</script>
+{% endblock %}

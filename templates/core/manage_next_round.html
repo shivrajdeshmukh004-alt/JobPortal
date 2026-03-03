@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Manage Next Round - {{ job.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/hr.css' %}">
+<style>
+    .manage-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .setup-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .candidates-list {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-badge.second-round {
+        background: #E3F2FD;
+        color: #1976D2;
+        border: 1px solid #BBDEFB;
+    }
+
+    .status-badge.shortlisted {
+        background: #E8F5E9;
+        color: #388E3C;
+        border: 1px solid #C8E6C9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manage-container">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'job_applicants' job.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <h2 class="mb-0">Manage Next Round: {{ job.title }}</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Round Details Setup -->
+        <div class="setup-card">
+            <h4 class="mb-4 text-primary"><i class="bi bi-sliders"></i> Round Details</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Round Name <span class="text-danger"
+                            id="round-name-required">*</span></label>
+                    <input type="text" name="interview_name" id="interview_name" class="form-control"
+                        placeholder="e.g. Technical Round, HR Interview">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Interview Link <span class="text-danger"
+                            id="interview-link-required">*</span></label>
+                    <input type="url" name="interview_link" id="interview_link" class="form-control"
+                        placeholder="https://meet.google.com/...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date & Time <span class="text-danger"
+                            id="interview-date-required">*</span></label>
+                    <input type="datetime-local" name="interview_date" id="interview_date" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates Selection -->
+        <div class="candidates-list">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                <div>
+                    <h5 class="mb-1">Manage Candidates</h5>
+                    <small class="text-muted">Select candidates to reject, move to next round, or finally select for the
+                        role</small>
+                </div>
+                <span class="badge bg-primary">{{ applicants.count }} Candidates</span>
+            </div>
+
+            {% if applicants %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="50">
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th>Candidate</th>
+                            <th>Email</th>
+                            <th>Match Score</th>
+                            <th>Current Status</th>
+                            <th>Last Round</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applicants %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="application_ids" value="{{ app.id }}"
+                                    class="form-check-input applicant-checkbox">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if app.candidate.candidate_profile.profile_photo %}
+                                    <img src="{{ app.candidate.candidate_profile.profile_photo.url }}"
+                                        class="rounded-circle" width="32" height="32" style="object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                                        style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">
+                                        {{ app.candidate.username|slice:":2"|upper }}
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ app.candidate.first_name }} {{ app.candidate.last_name }}</div>
+                                        <div class="small text-muted">@{{ app.candidate.username }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ app.candidate.email }}</td>
+                            <td>
+                                {% if app.score >= 80 %}
+                                <span class="badge bg-success">{{ app.score }}%</span>
+                                {% elif app.score >= 60 %}
+                                <span class="badge bg-warning text-dark">{{ app.score }}%</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ app.score }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.status == 'SECOND_ROUND' %}
+                                <span class="status-badge second-round"><i class="bi bi-camera-video"></i>
+                                    Interviewing</span>
+                                {% else %}
+                                <span class="status-badge shortlisted"><i class="bi bi-check-circle"></i>
+                                    Shortlisted</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.interview_name %}
+                                <small class="text-muted">{{ app.interview_name }}</small>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 border-top bg-light">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <button type="submit" name="action" value="reject" class="btn btn-danger w-100"
+                            onclick="return confirm('Are you sure you want to reject the selected candidates?')">
+                            <i class="bi bi-x-circle"></i> Reject Selected
+                        </button>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button type="submit" name="action" value="next_round" class="btn btn-primary px-4">
+                                <i class="bi bi-send-check"></i> Move to Next Round
+                            </button>
+                            <button type="submit" name="action" value="select" class="btn btn-success px-4"
+                                onclick="return confirm('Are you sure you want to FINALLY SELECT this candidate for the role?')">
+                                <i class="bi bi-trophy"></i> Finally Select
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Reject:</strong> Remove candidates from list permanently.
+                        <strong>Next Round:</strong> Send round details to selected candidates.
+                        <strong>Finally Select:</strong> Select exactly ONE candidate for the role.
+                    </small>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center p-5">
+                <i class="bi bi-people text-muted display-4"></i>
+                <p class="mt-3 text-muted">No eligible candidates found for this job.</p>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Conditional validation for round details
+    const form = document.querySelector('form');
+    const roundNameInput = document.getElementById('interview_name');
+    const interviewLinkInput = document.getElementById('interview_link');
+    const interviewDateInput = document.getElementById('interview_date');
+
+    // Add click handlers to buttons to set validation
+    document.querySelectorAll('button[name="action"]').forEach(button => {
+        button.addEventListener('click', function (e) {
+            const action = this.value;
+
+            if (action === 'next_round') {
+                // Require fields for next round
+                roundNameInput.setAttribute('required', 'required');
+                interviewLinkInput.setAttribute('required', 'required');
+                interviewDateInput.setAttribute('required', 'required');
+            } else {
+                // Don't require fields for reject/select
+                roundNameInput.removeAttribute('required');
+                interviewLinkInput.removeAttribute('required');
+                interviewDateInput.removeAttribute('required');
+            }
+        });
+    });
+
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.applicant-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h1>Update on your Application</h1>
+<p>Hi {{ candidate_name }},</p>
+
+<p>Thank you for giving us the opportunity to consider you for the <strong>{{ job_title|title }}</strong> position at
+    <strong>{{ company_name|title }}</strong>.
+</p>
+
+<p>After careful review, we have decided to move forward with other candidates who more closely match our current
+    requirements.</p>
+
+<p>We appreciate your interest and time. We encourage you to apply for other openings that match your skills.</p>
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="btn" style="background: #999;">Find More Jobs</a>
+</div>
+{% endblock %}

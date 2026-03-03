@@ -1,0 +1,20 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h1>New Job Alert: {{ job_title|title }}</h1>
+<p>Hi there,</p>
+
+<p>A new job opportunity has just been posted that might interest you.</p>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">{{ job_title|title }}</h3>
+    <p style="margin-bottom: 5px;"><strong>Company:</strong> {{ company_name|title }}</p>
+    <p style="margin-bottom: 5px;"><strong>Location:</strong> {{ location }}</p>
+</div>
+
+<p>Check out the full details and apply now if you're a good fit!</p>
+
+<div style="text-align: center;">
+    <a href="{{ job_url }}" class="btn">View Job Details</a>
+</div>
+{% endblock %}
