@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-this')
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = True  # TEMPORARY: set back to os.getenv('DEBUG', 'False') == 'True' after diagnosing
 
 ALLOWED_HOSTS = ['jobportal-1268.onrender.com', 'localhost', '127.0.0.1', '*']
 
